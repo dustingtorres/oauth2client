@@ -448,7 +448,9 @@ class UserOAuth2(object):
         """Creates a URl to start the OAuth2 authorization flow."""
         get_params = {
             'return_url': self.return_url,
-            'scopes': self._get_scopes()
+            'scopes': self._get_scopes(),
+            'access_type': "offline",
+            'prompt': "consent",
         }
 
         return _redirect_with_params('google_oauth:authorize', **get_params)
