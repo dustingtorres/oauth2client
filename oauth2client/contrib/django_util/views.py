@@ -57,18 +57,22 @@ def _make_flow(request, scopes, return_url=None):
 
     request.session[_CSRF_KEY] = csrf_token
 
+    # base_url is sent so a proxy can redirect back allowing to not have to
+    # authorize every subdomain with google in the console.
     state = json.dumps({
         'csrf_token': csrf_token,
         'return_url': return_url,
+        'base_url': request.build_absolute_uri(
+           urlresolvers.reverse("google_oauth:callback")),
     })
-
+    redirect_uri = getattr(settings, "GOOGLE_OAUTH2_REDIRECT_URI", request.build_absolute_uri(
+                                urlresolvers.reverse("google_oauth:callback")))
     flow = client.OAuth2WebServerFlow(
         client_id=django_util.oauth2_settings.client_id,
         client_secret=django_util.oauth2_settings.client_secret,
         scope=scopes,
         state=state,
-        redirect_uri=request.build_absolute_uri(
-            urlresolvers.reverse("google_oauth:callback")),
+        redirect_uri=redirect_uri,
         prompt="consent",
         access_type="offline",
     )
